@@ -26,11 +26,15 @@ Vue.prototype.isAuth = isAuth     // 权限方法
 // 保存整站vuex本地储存初始状态
 window.SITE_CONFIG['storeState'] = cloneDeep(store.state)
 
+// 去除页面所有警告
+window.console.warn = () => { }
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
   store,
   template: '<App/>',
-  components: { App }
+  components: { App },
+  
 })

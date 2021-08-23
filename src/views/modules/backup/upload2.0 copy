@@ -1,0 +1,730 @@
+<!-- 选择领料单数据上传 -->
+<template>
+  <el-row>
+    <el-col :span="24">
+      <el-steps :active="step" finish-status="success">
+        <el-step title="领料选择"></el-step>
+        <el-step title="型号数量"></el-step>
+        <el-step title="照片上传"></el-step>
+      </el-steps>
+    </el-col>
+
+    <!-- 第一步 -->
+    <el-col :span="14" v-show="step == 0">
+      <el-form ref="itemSelect" label-width="100px">
+        <el-form-item label="打印机相关：">
+          <el-checkbox-group v-model="printerCheckboxGroup">
+            <el-checkbox-button
+              v-for="item in printers"
+              :label="item"
+              :key="item"
+              >{{ item }}</el-checkbox-button
+            >
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item label="电脑相关：">
+          <el-checkbox-group v-model="computerCheckboxGroup">
+            <el-checkbox-button
+              v-for="item in computers"
+              :label="item"
+              :key="item"
+              >{{ item }}</el-checkbox-button
+            >
+          </el-checkbox-group>
+        </el-form-item>
+
+        <el-form-item label="其他：">
+          <el-checkbox-group v-model="otherCheckboxGroup">
+            <el-checkbox-button
+              v-for="item in others"
+              :label="item"
+              :key="item"
+              >{{ item }}</el-checkbox-button
+            >
+          </el-checkbox-group>
+        </el-form-item>
+        <el-form-item>
+          <el-col :span="24">
+            <el-button style="margin-top: 12px" @click="next1"
+              >下一步</el-button
+            >
+          </el-col>
+        </el-form-item>
+      </el-form>
+    </el-col>
+
+    <!-- 第二步 -->
+    <el-col :span="14" v-show="step == 1">
+      <el-form ref="itemNumbers" label-width="100px">
+        <el-form-item label="打印机相关" style="font: 40px">
+          <!-- <div style="margin-bottom: 10px">
+            <el-button
+              size="small"
+              icon="el-icon-plus"
+              @click="addTab(printerTabsValue)"
+              circle
+            >
+            </el-button>
+          </div> -->
+          <el-tabs
+            v-model="printerTabsValue"
+            type="card"
+            closable
+            @tab-remove="removePrinterTab"
+          >
+            <el-tab-pane
+              v-for="item in printerTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+            >
+            <!-- 传入子组件parentName -->
+              <template slot-scope="scope">
+                <upload-model
+                  :parentName="scope.row.name"
+                  v-for="(item, index) in uploadModel"
+                  :key="index"
+                  :index="index"
+                  :item="item"
+                ></upload-model>
+              </template>
+            </el-tab-pane>
+          </el-tabs>
+        </el-form-item>
+
+        <el-form-item label="电脑相关" style="font: 40px">
+          <el-tabs
+            v-model="computerTabsValue"
+            type="card"
+            closable
+            @tab-remove="removeComputerTab"
+          >
+            <el-tab-pane
+              v-for="item in computerTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+            >
+              <el-form :model="environmentForm" ref="environmentForm">
+                <el-row
+                  :gutter="24"
+                  v-for="(item, index) in environmentForm.items"
+                  :key="item.key"
+                >
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.name'"
+                      :rules="{
+                        required: true,
+                        message: '名称不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input v-model="item.name"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.variable'"
+                      :rules="{
+                        required: true,
+                        message: '变量值不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input v-model="item.variable"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.description'"
+                      :rules="{
+                        required: true,
+                        message: '描述不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input
+                        type="textarea"
+                        :rows="1"
+                        v-model="item.description"
+                      ></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3" v-if="environmentForm.items.length !== 1">
+                    <i
+                      @click="removeEnvironmentForm(item)"
+                      style="font-size: 28px; cursor: pointer"
+                      class="el-icon-delete"
+                    ></i>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-button
+                      @click="addEnvironmentForm"
+                      size="mini"
+                      class="el-icon-plus"
+                    ></el-button>
+                  </el-col>
+                </el-row>
+              </el-form>
+            </el-tab-pane>
+          </el-tabs>
+        </el-form-item>
+
+        <el-form-item label="其他" style="font: 40px">
+          <el-tabs
+            v-model="otherTabsValue"
+            type="card"
+            closable
+            @tab-remove="removeOtherTab"
+          >
+            <el-tab-pane
+              v-for="item in otherTabs"
+              :key="item.name"
+              :label="item.title"
+              :name="item.name"
+            >
+              <el-form :model="environmentForm" ref="environmentForm">
+                <el-row
+                  :gutter="24"
+                  v-for="(item, index) in environmentForm.items"
+                  :key="item.key"
+                >
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.name'"
+                      :rules="{
+                        required: true,
+                        message: '名称不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input v-model="item.name"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.variable'"
+                      :rules="{
+                        required: true,
+                        message: '变量值不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input v-model="item.variable"></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item
+                      :prop="'items.' + index + '.description'"
+                      :rules="{
+                        required: true,
+                        message: '描述不能为空',
+                        trigger: 'blur',
+                      }"
+                    >
+                      <el-input
+                        type="textarea"
+                        :rows="1"
+                        v-model="item.description"
+                      ></el-input>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="3" v-if="environmentForm.items.length !== 1">
+                    <i
+                      @click="removeEnvironmentForm(item)"
+                      style="font-size: 28px; cursor: pointer"
+                      class="el-icon-delete"
+                    ></i>
+                  </el-col>
+                  <el-col :span="3">
+                    <el-button
+                      @click="addEnvironmentForm"
+                      size="mini"
+                      class="el-icon-plus"
+                    ></el-button>
+                  </el-col>
+                </el-row>
+              </el-form>
+            </el-tab-pane>
+          </el-tabs>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button style="margin-top: 12px" @click="last1">上一步</el-button>
+          <el-button style="margin-top: 12px" @click="next2">下一步</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+
+    <!-- 第三步 -->
+    <el-col :span="14" v-show="step == 2">
+      <el-form ref="dataUpload" label-width="80px">
+        <el-form-item label="图片上传">
+          <el-upload
+            action="\\192.168.31.19\Users\a7565\Pictures\Saved Pictures"
+            list-type="picture-card"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogImageUrl" alt="" />
+          </el-dialog>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button style="margin-top: 12px" @click="last2">上一步</el-button>
+          <el-button style="margin-top: 12px" @click="upload">提交</el-button>
+        </el-form-item>
+      </el-form>
+    </el-col>
+  </el-row>
+</template>
+
+<script>
+//这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
+//例如：import 《组件名称》 from '《组件路径》';
+import UploadModel from "./upload2.0-model";
+export default {
+  //import引入的组件需要注入到对象中才能使用
+  components: {
+    UploadModel,
+  },
+  data() {
+    //这里存放数据
+    return {
+      //步骤
+      step: 0,
+
+      //请求的库存数据
+      allList: [
+        {
+          catId: 0,
+          name: "",
+          parentCid: 0,
+          parentName: null,
+          catLevel: 0,
+          showStatus: 0,
+          sort: null,
+          icon: null,
+          stockCount: null,
+          stockUnit: null,
+          updateTime: null,
+        },
+      ],
+      /* stock: [
+        {
+          id: 0,
+          name: "",
+          model: "",
+          unit: "",
+          amount: 0,
+          price: 0,
+          updateTime: "",
+          type: 0,
+        },
+      ], */
+
+      //打印机型号单选框
+      /* options: [
+        {
+          value: "惠普",
+          label: "惠普",
+          disabled: false,
+          num: 0,
+          unit: "台",
+        },
+      ],
+      value: "惠普",
+
+      //型号数量
+      num: 0,
+      min: 1,
+
+      //型号单位
+      unit: "台", */
+
+      //提交表单
+      form: [
+        {
+          no: null,
+          date: null,
+          name: null,
+          model: null,
+          unit: null,
+          amount: null,
+          price: null,
+          totalPrice: null,
+          comment: null,
+          department: null,
+          departmentLeader: null,
+          departmentMember: null,
+          photo: null,
+          type: null,
+          tabsValue: null,
+        },
+      ],
+
+      //填写表单增加
+      uploadModel: [{}],
+
+      //打印机等复选
+      printers: [],
+      computers: [],
+      others: [],
+      printerCheckboxGroup: [],
+      computerCheckboxGroup: [],
+      otherCheckboxGroup: [],
+
+      //打印机数量选择
+      printerTabsValue: "1", //当前tab序号
+      printerTabs: [],
+      tabIndex: 1,
+      //电脑数量选择
+      computerTabsValue: "1", //当前tab序号
+      computerTabs: [],
+      tabIndex: 1,
+      //其他数量选择
+      otherTabsValue: "1", //当前tab序号
+      otherTabs: [],
+      tabIndex: 1,
+
+      //型号数量表单
+      /* environmentForm: {
+        items: [
+          {
+            name: "",
+            variable: "",
+            description: "",
+          },
+        ],
+      }, */
+
+      //图片上传
+      dialogImageUrl: "",
+      dialogVisible: false,
+    };
+  },
+  //监听属性 类似于data概念
+  computed: {},
+  //监控data中的数据变化
+  watch: {},
+  //方法集合
+  methods: {
+    //获取所有库存，type为类型，然后对应型号等内容
+    init() {
+      let _this = this;
+      this.$http({
+        url: this.$http.adornUrl("/it/stock/allList"),
+        method: "get",
+        params: this.$http.adornParams({}),
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+          this.allList = data.allList;
+          //parentCid为对应总类型的catId的加入到复选框
+          data.allList.forEach((element) => {
+            let parentCid = element.parentCid;
+            if (parentCid == 1) {
+              _this.printers.push(element.name);
+            }
+            if (parentCid == 2) {
+              _this.computers.push(element.name);
+            }
+            if (parentCid == 3) {
+              _this.others.push(element.name);
+            }
+          });
+        }
+      });
+      /* this.$http({
+        url: this.$http.adornUrl("/it/stockname/list"),
+        method: "get",
+        params: this.$http.adornParams({}),
+      }).then(({ data }) => {
+        if (data && data.code === 0) {
+          this.stock = data.page.list;
+        }
+      }); */
+    },
+
+    //第一步下一步
+    next1() {
+      //将选择好的数组加入到form中
+      let date = this.dateFormat("YYYY-mm-dd HH:MM", new Date());
+      this.printerCheckboxGroup.forEach((element) => {
+        this.form.push({ date: date, name: element, type: 0 });
+      });
+      this.computerCheckboxGroup.forEach((element) => {
+        this.form.push({ date: date, name: element, type: 1 });
+      });
+      this.otherCheckboxGroup.forEach((element) => {
+        this.form.push({ date: date, name: element, type: 2 });
+      });
+
+      //遍历form的type，分别将form的name内对应的内容循环赋值到editableTabs中
+      let printerCount = 0;
+      let computerCount = 0;
+      let otherCount = 0;
+      this.form.forEach((item, index) => {
+        if (item.type == 0) {
+          printerCount++;
+          item.tabsValue = printerCount + "";
+          this.printerTabs.push({
+            title: item.name,
+            name: printerCount + "",
+          });
+        }
+        if (item.type == 1) {
+          computerCount++;
+          item.tabsValue = computerCount + "";
+          this.computerTabs.push({
+            title: item.name,
+            name: computerCount + "",
+          });
+        }
+        if (item.type == 2) {
+          otherCount++;
+          item.tabsValue = otherCount + "";
+          this.otherTabs.push({
+            title: item.name,
+            name: otherCount + "",
+          });
+        }
+      });
+
+      //将tab分配好后，分别将对应type的表单放入tab中
+
+      console.log("---第一步form：---");
+      console.log(this.form);
+      console.log("------------------");
+      this.step++;
+    },
+
+    //第二步下一步
+    next2() {
+      this.step++;
+    },
+
+    //第二步上一步
+    last1() {
+      this.form = [
+        {
+          no: null,
+          date: null,
+          name: null,
+          model: null,
+          unit: null,
+          amount: null,
+          price: null,
+          totalPrice: null,
+          comment: null,
+          department: null,
+          departmentLeader: null,
+          departmentMember: null,
+          photo: null,
+          type: null,
+        },
+      ];
+      this.printerTabs = [];
+      this.computerTabs = [];
+      this.otherTabs = [];
+      this.step--;
+    },
+
+    //第三步上一步
+    last2() {
+      this.step--;
+    },
+
+    //提交数据
+    upload() {
+      console.log("~~~~~", JSON.stringify(this.spu));
+      this.$confirm("将要提交数据，是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      });
+    },
+
+    //增加tab
+    /* addTab(targetValue) {
+      let newTabName = ++this.tabIndex + "";
+      this.printerTabs.push({
+        title: "New Tab",
+        name: newTabName,
+        content: "New Tab content",
+      });
+      this.printerTabsValue = newTabName;
+    }, */
+
+    //删除PrinterTab
+    removePrinterTab(targetValue) {
+      //赋值展示tab
+      let tabs = this.printerTabs;
+      //赋值当前tab序号
+      let activeValue = this.printerTabsValue;
+      //删除当前tab的form属性
+      this.form.forEach((item) => {
+        if (item.tabsValue == targetValue) {
+          item = null;
+        }
+      });
+      //如果要删除的tab是当前正在浏览的tab，则跳转到上一个或者下一个
+      if (activeValue === targetValue) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetValue) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeValue = nextTab.name;
+            }
+          }
+        });
+      }
+      this.printerTabsValue = activeValue;
+      //过滤出所有不要删除的tab
+      this.printerTabs = tabs.filter((tab) => tab.name !== targetValue);
+    },
+    //删除ComputerTab
+    removeComputerTab(targetValue) {
+      //赋值展示tab
+      let tabs = this.computerTabs;
+      //赋值当前tab序号
+      let activeValue = this.computerTabsValue;
+      //删除当前tab的form属性
+      this.form.forEach((item) => {
+        if (item.tabsValue == targetValue) {
+          item = null;
+        }
+      });
+      //如果要删除的tab是当前正在浏览的tab，则跳转到上一个或者下一个
+      if (activeValue === targetValue) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetValue) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeValue = nextTab.name;
+            }
+          }
+        });
+      }
+      this.computerTabsValue = activeValue;
+      //过滤出所有不要删除的tab
+      this.computerTabs = tabs.filter((tab) => tab.name !== targetValue);
+    },
+    //删除OtherTab
+    removeOtherTab(targetValue) {
+      //赋值展示tab
+      let tabs = this.otherTabs;
+      //赋值当前tab序号
+      let activeValue = this.otherTabsValue;
+      //删除当前tab的form属性
+      this.form.forEach((item) => {
+        if (item.tabsValue == targetValue) {
+          item = null;
+        }
+      });
+      //如果要删除的tab是当前正在浏览的tab，则跳转到上一个或者下一个
+      if (activeValue === targetValue) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetValue) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeValue = nextTab.name;
+            }
+          }
+        });
+      }
+      this.otherTabsValue = activeValue;
+      //过滤出所有不要删除的tab
+      this.otherTabs = tabs.filter((tab) => tab.name !== targetValue);
+    },
+
+    //form提交
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log("提交", this.environmentForm);
+          alert("submit!");
+        } else {
+          console.log("error submit!!");
+          return false;
+        }
+      });
+    },
+
+    //属性数量选择表单
+    /* resetForm(formName) {
+      this.$refs[formName].resetFields();
+    },
+    removeEnvironmentForm(item) {
+      var index = this.environmentForm.items.indexOf(item);
+      if (index !== -1) {
+        this.environmentForm.items.splice(index, 1);
+      }
+    },
+    addEnvironmentForm() {
+      this.environmentForm.items.push({
+        name: "",
+        variable: "",
+        description: "",
+        key: Date.now(),
+      });
+    }, */
+
+    //当型号改变时，更改其他对应数量和单位，然后将所有值赋值到对应form中
+    modelChange() {},
+
+    //图片处理
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+
+    //时间格式化
+    dateFormat(fmt, date) {
+      let ret;
+      const opt = {
+        "Y+": date.getFullYear().toString(), // 年
+        "m+": (date.getMonth() + 1).toString(), // 月
+        "d+": date.getDate().toString(), // 日
+        "H+": date.getHours().toString(), // 时
+        "M+": date.getMinutes().toString(), // 分
+        "S+": date.getSeconds().toString(), // 秒
+        // 有其他格式化字符需求可以继续添加，必须转化成字符串
+      };
+      for (let k in opt) {
+        ret = new RegExp("(" + k + ")").exec(fmt);
+        if (ret) {
+          fmt = fmt.replace(
+            ret[1],
+            ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0")
+          );
+        }
+      }
+      return fmt;
+    },
+  },
+  //生命周期 - 创建完成（可以访问当前this实例）
+  created() {
+    this.init();
+  },
+  //生命周期 - 挂载完成（可以访问DOM元素）
+  mounted() {},
+  beforeCreate() {}, //生命周期 - 创建之前
+  beforeMount() {}, //生命周期 - 挂载之前
+  beforeUpdate() {}, //生命周期 - 更新之前
+  updated() {}, //生命周期 - 更新之后
+  beforeDestroy() {}, //生命周期 - 销毁之前
+  destroyed() {}, //生命周期 - 销毁完成
+  activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发
+};
+</script>
+<style lang='scss' scoped>
+//@import url(); 引入公共css类
+</style>

@@ -1,0 +1,88 @@
+<!--  -->
+<template>
+  <el-tabs
+    v-model="printerTabsValue"
+    type="card"
+    closable
+    @tab-remove="removePrinterTab"
+  >
+    <el-tab-pane
+      v-for="item in printerTabs"
+      :key="item.name"
+      :label="item.title"
+      :name="item.name"
+    >
+      <!-- 传入子组件parentName -->
+      <template slot-scope="scope">
+        <upload-model
+          :parentName="scope.row.name"
+          v-for="(item, index) in uploadModel"
+          :key="index"
+          :index="index"
+          :item="item"
+        ></upload-model>
+      </template>
+    </el-tab-pane>
+  </el-tabs>
+</template>
+
+<script>
+//这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
+//例如：import 《组件名称》 from '《组件路径》';
+
+export default {
+  //import引入的组件需要注入到对象中才能使用
+  components: {},
+  data() {
+    //这里存放数据
+    return {};
+  },
+  //监听属性 类似于data概念
+  computed: {},
+  //监控data中的数据变化
+  watch: {},
+  //方法集合
+  methods: {
+    removePrinterTab(targetValue) {
+      //赋值展示tab
+      let tabs = this.printerTabs;
+      //赋值当前tab序号
+      let activeValue = this.printerTabsValue;
+      //删除当前tab的form属性
+      this.form.forEach((item) => {
+        if (item.tabsValue == targetValue) {
+          item = null;
+        }
+      });
+      //如果要删除的tab是当前正在浏览的tab，则跳转到上一个或者下一个
+      if (activeValue === targetValue) {
+        tabs.forEach((tab, index) => {
+          if (tab.name === targetValue) {
+            let nextTab = tabs[index + 1] || tabs[index - 1];
+            if (nextTab) {
+              activeValue = nextTab.name;
+            }
+          }
+        });
+      }
+      this.printerTabsValue = activeValue;
+      //过滤出所有不要删除的tab
+      this.printerTabs = tabs.filter((tab) => tab.name !== targetValue);
+    },
+  },
+  //生命周期 - 创建完成（可以访问当前this实例）
+  created() {},
+  //生命周期 - 挂载完成（可以访问DOM元素）
+  mounted() {},
+  beforeCreate() {}, //生命周期 - 创建之前
+  beforeMount() {}, //生命周期 - 挂载之前
+  beforeUpdate() {}, //生命周期 - 更新之前
+  updated() {}, //生命周期 - 更新之后
+  beforeDestroy() {}, //生命周期 - 销毁之前
+  destroyed() {}, //生命周期 - 销毁完成
+  activated() {}, //如果页面有keep-alive缓存功能，这个函数会触发
+};
+</script>
+<style lang='scss' scoped>
+//@import url(); 引入公共css类
+</style>
