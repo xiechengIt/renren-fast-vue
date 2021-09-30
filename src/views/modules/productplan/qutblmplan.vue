@@ -6,18 +6,6 @@
       @keyup.enter.native="getDataList()"
     >
       <el-form-item>
-        <el-date-picker
-          v-model="pickerDate"
-          type="datetimerange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          align="right"
-        >
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
         <el-input
           v-model="dataForm.key"
           placeholder="参数名"
@@ -26,14 +14,15 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <!-- <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button> -->
+        <!-- <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button>
         <el-button
           type="danger"
           @click="deleteHandle()"
           :disabled="dataListSelections.length <= 0"
           >批量删除</el-button
-        >
-        <el-button @click="exportExcel" type="primary" class="button"
+        > -->
+        <!-- 导出按钮 -->
+        <el-button @click="setExport2Excel" type="primary" class="button"
           >导出</el-button
         >
       </el-form-item>
@@ -45,6 +34,9 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%"
+      stripe
+      size="mini"
+      height="650"
     >
       <el-table-column
         type="selection"
@@ -54,114 +46,243 @@
       >
       </el-table-column>
       <el-table-column
-        prop="id"
+        prop="machineId"
         header-align="center"
         align="center"
-        label="id"
+        label="机号"
       >
       </el-table-column>
       <el-table-column
-        prop="no"
+        prop="machineName"
         header-align="center"
         align="center"
-        label="单号"
+        label="机名"
       >
       </el-table-column>
       <el-table-column
-        prop="date"
+        prop="cardId"
         header-align="center"
         align="center"
-        label="领料日期"
-        min-width="100px"
+        label="卡号"
       >
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="code"
         header-align="center"
         align="center"
-        label="材料名称"
-        min-width="100px"
+        label="代码"
       >
       </el-table-column>
       <el-table-column
-        prop="model"
+        prop="itemName"
         header-align="center"
         align="center"
-        label="型号"
+        label="品名"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="billNum"
+        header-align="center"
+        align="center"
+        label="单据编号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="specification"
+        header-align="center"
+        align="center"
+        label="规格型号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="capacityH"
+        header-align="center"
+        align="center"
+        label="产能H"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="slotCount"
+        header-align="center"
+        align="center"
+        label="穴数"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="pieceWeightG"
+        header-align="center"
+        align="center"
+        label="单重g"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="workOrderId"
+        header-align="center"
+        align="center"
+        label="工单号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="orderId"
+        header-align="center"
+        align="center"
+        label="订单号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="autoFinish"
+        header-align="center"
+        align="center"
+        label="结案"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="productPlanAmount"
+        header-align="center"
+        align="center"
+        label="计划生产数量"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="endAmount"
+        header-align="center"
+        align="center"
+        label="实际完成数量"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="restAmount"
+        header-align="center"
+        align="center"
+        label="实际剩余数量"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="beginTime"
+        header-align="center"
+        align="center"
+        label="实际开始日期"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="manualFinish"
+        header-align="center"
+        align="center"
+        label="手工结案"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="restTime"
+        header-align="center"
+        align="center"
+        label="实际剩余工时"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="endTime"
+        header-align="center"
+        align="center"
+        label="实际结束日期"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="updateTime"
+        header-align="center"
+        align="center"
+        label="更新日期"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="color"
+        header-align="center"
+        align="center"
+        label="颜色"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialNo"
+        header-align="center"
+        align="center"
+        label="材料料号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialItemName"
+        header-align="center"
+        align="center"
+        label="材料品名"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialTotalKg"
+        header-align="center"
+        align="center"
+        label="理论材料总量kg"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialUsedKg"
+        header-align="center"
+        align="center"
+        label="理论材料已用kg"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialRestKg"
+        header-align="center"
+        align="center"
+        label="理论材料结余kg"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="advancedTimeH"
+        header-align="center"
+        align="center"
+        label="提前期H"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="makeBillTime"
+        header-align="center"
+        align="center"
+        label="制单日期"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="status"
+        header-align="center"
+        align="center"
+        label="状态"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="modelNo"
+        header-align="center"
+        align="center"
+        label="模具编号"
       >
       </el-table-column>
       <!-- <el-table-column
-        prop="unit"
+        prop="计划开始日期"
         header-align="center"
         align="center"
-        label="单位"
+        label="${column.comments}"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="理论材料总量kg"
+        header-align="center"
+        align="center"
+        label="${column.comments}"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="modelNo"
+        header-align="center"
+        align="center"
+        label="模具编号"
       >
       </el-table-column> -->
-      <el-table-column
-        prop="amount"
-        header-align="center"
-        align="center"
-        label="总数"
-      >
-      </el-table-column>
-      <!-- <el-table-column
-        prop="price"
-        header-align="center"
-        align="center"
-        label="单价"
-      >
-      </el-table-column> -->
-      <el-table-column
-        prop="totalPrice"
-        header-align="center"
-        align="center"
-        label="总价"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="comment"
-        header-align="center"
-        align="center"
-        label="备注"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="department"
-        header-align="center"
-        align="center"
-        label="领料部门"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="departmentLeader"
-        header-align="center"
-        align="center"
-        label="领料部门负责人"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="departmentMember"
-        header-align="center"
-        align="center"
-        label="领料人"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="photo"
-        header-align="center"
-        align="center"
-        label="领料人照片"
-      >
-        <template slot-scope="scope">
-          <el-button
-            circle
-            type="info"
-            icon="el-icon-search"
-            @click="getPhoto(scope.row.photo)"
-          >
-          </el-button>
-        </template>
-      </el-table-column>
       <el-table-column
         fixed="right"
         header-align="center"
@@ -170,12 +291,6 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button
-            type="text"
-            size="small"
-            @click="getDetailHandle(scope.row.id)"
-            >详情</el-button
-          >
           <el-button
             type="text"
             size="small"
@@ -207,29 +322,18 @@
       ref="addOrUpdate"
       @refreshDataList="getDataList"
     ></add-or-update>
-    <!-- 详情 -->
-    <get-detail
-      v-if="getDetailVisible"
-      ref="getDetail"
-      @refreshDataList="getDataList"
-    ></get-detail>
-    <!-- 领料人图片 -->
-    <el-dialog :visible.sync="getPhotoVisible" width="30%">
-      <img width="100%" :src="photoUrl" />
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import AddOrUpdate from "./stockBill-add-or-update";
-import GetDetail from "./stockBill-get-detail";
+import AddOrUpdate from "./qutblmplan-add-or-update";
 import FileSaver from "file-saver";
-import XLSX from "xlsx";
+import XLSX2 from "xlsx";
 export default {
   data() {
     return {
       dataForm: {
-        key: null,
+        key: "",
       },
       dataList: [],
       pageIndex: 1,
@@ -238,54 +342,17 @@ export default {
       dataListLoading: false,
       dataListSelections: [],
       addOrUpdateVisible: false,
-      getDetailVisible: false,
-      getPhotoVisible: false,
-      photoUrl: "",
-      //时间快速选择
-      pickerDate: [],
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-        ],
-      },
     };
   },
   components: {
     AddOrUpdate,
-    GetDetail,
   },
   activated() {
     this.getDataList();
   },
   methods: {
-    // 导出表格所用
-    exportExcel() {
+    // 导出excel表格
+    setExport2Excel() {
       // 设置当前日期
       let time = new Date();
       let year = time.getFullYear();
@@ -293,11 +360,9 @@ export default {
       let day = time.getDate();
       let name = year + "" + month + "" + day;
       // console.log(name)
-      /* generate workbook object from table */
       // .table要导出的是哪一个表格
-      var wb = XLSX.utils.table_to_book(document.querySelector(".table"));
-      /* get binary string as output */
-      var wbout = XLSX.write(wb, {
+      var wb = XLSX2.utils.table_to_book(document.querySelector(".table"));
+      var wbout = XLSX2.write(wb, {
         bookType: "xlsx",
         bookSST: true,
         type: "array",
@@ -317,44 +382,17 @@ export default {
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true;
-      let key = this.dataForm.key;
-      if (key != null) {
-        key += "";
-      }
-      let pageIndex = this.pageIndex;
-      if (pageIndex != null) {
-        pageIndex += "";
-      }
-      let pageSize = this.pageSize;
-      if (pageSize != null) {
-        pageSize += "";
-      }
       this.$http({
-        url: this.$http.adornUrl("/it/stockBill/list"),
-        method: "post",
-        data: this.$http.adornData({
-          page: pageIndex,
-          limit: pageSize,
-          key: key,
-          pickerDate: this.pickerDate,
+        url: this.$http.adornUrl("/productionplan/qutblmplan/finishedList"),
+        method: "get",
+        params: this.$http.adornParams({
+          page: this.pageIndex,
+          limit: this.pageSize,
+          key: this.dataForm.key,
         }),
       }).then(({ data }) => {
         if (data && data.code === 0) {
-          let allList = data.page.list;
-          allList.forEach((element, index) => {
-            //如果材料name有多个值，则取出第一个值，再在后面加上...
-            let names = this.doSplit(element.name);
-            element.name = names;
-            let models = this.doSplit(element.model);
-            element.model = models;
-
-            //将数量和单价通过","拆分后计算总数和总价
-            let total = this.doPlus(element.amount);
-            element.amount = total;
-            let total2 = this.doPlus(element.totalPrice);
-            element.totalPrice = total2;
-          });
-          this.dataList = allList;
+          this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
         } else {
           this.dataList = [];
@@ -363,39 +401,6 @@ export default {
         this.dataListLoading = false;
       });
     },
-
-    //分割然后替代原参数方法
-    doSplit(str) {
-      let strs = str.split(",");
-      if (strs.length > 1) {
-        str = strs[0];
-        return (str += "....");
-      }
-      return str;
-    },
-
-    //将数组的所有字符串转为数字，然后再相加
-    doPlus(list) {
-      if (list && list.length > 0) {
-        let total = 0;
-        let list2 = list.split(",");
-        list2.forEach((item) => {
-          let num = parseInt(item);
-          total += num;
-        });
-        return total;
-      }
-      return "";
-    },
-
-    //获取当前照片
-    getPhoto(photo) {
-      if (photo == null) {
-        this.$message.error("领料人暂无照片");
-      } else this.getPhotoVisible = true;
-      this.photoUrl = photo;
-    },
-
     // 每页数
     sizeChangeHandle(val) {
       this.pageSize = val;
@@ -410,13 +415,6 @@ export default {
     // 多选
     selectionChangeHandle(val) {
       this.dataListSelections = val;
-    },
-    //
-    getDetailHandle(id) {
-      this.getDetailVisible = true;
-      this.$nextTick(() => {
-        this.$refs.getDetail.init(id);
-      });
     },
     // 新增 / 修改
     addOrUpdateHandle(id) {
@@ -442,7 +440,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/it/stockBill/delete"),
+          url: this.$http.adornUrl("/productionplan/qutblmplan/delete"),
           method: "post",
           data: this.$http.adornData(ids, false),
         }).then(({ data }) => {

@@ -6,18 +6,6 @@
       @keyup.enter.native="getDataList()"
     >
       <el-form-item>
-        <el-date-picker
-          v-model="pickerDate"
-          type="datetimerange"
-          :picker-options="pickerOptions"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          align="right"
-        >
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
         <el-input
           v-model="dataForm.key"
           placeholder="参数名"
@@ -26,25 +14,30 @@
       </el-form-item>
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
-        <!-- <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button> -->
+        <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button>
+        <el-button @click="setExport2Excel" type="primary" class="button"
+          >导出</el-button
+        >
         <el-button
           type="danger"
           @click="deleteHandle()"
           :disabled="dataListSelections.length <= 0"
           >批量删除</el-button
         >
-        <el-button @click="exportExcel" type="primary" class="button"
-          >导出</el-button
-        >
+        <!-- v-if="isAuth('productionplan:tblmaterial:save')"
+        v-if="isAuth('productionplan:tblmaterial:delete')" -->
       </el-form-item>
     </el-form>
     <el-table
-      class="table"
       :data="dataList"
       border
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%"
+      stripe
+      size="mini"
+      height="650"
+      class="table"
     >
       <el-table-column
         type="selection"
@@ -61,106 +54,144 @@
       >
       </el-table-column>
       <el-table-column
-        prop="no"
+        prop="code"
         header-align="center"
         align="center"
-        label="单号"
+        label="代码"
       >
       </el-table-column>
       <el-table-column
-        prop="date"
+        prop="itemName"
         header-align="center"
         align="center"
-        label="领料日期"
-        min-width="100px"
+        label="品名"
       >
       </el-table-column>
       <el-table-column
-        prop="name"
+        prop="defaultWarehouse"
         header-align="center"
         align="center"
-        label="材料名称"
-        min-width="100px"
+        label="默认仓库"
       >
       </el-table-column>
       <el-table-column
-        prop="model"
-        header-align="center"
-        align="center"
-        label="型号"
-      >
-      </el-table-column>
-      <!-- <el-table-column
         prop="unit"
         header-align="center"
         align="center"
         label="单位"
       >
-      </el-table-column> -->
-      <el-table-column
-        prop="amount"
-        header-align="center"
-        align="center"
-        label="总数"
-      >
       </el-table-column>
-      <!-- <el-table-column
-        prop="price"
-        header-align="center"
-        align="center"
-        label="单价"
-      >
-      </el-table-column> -->
       <el-table-column
-        prop="totalPrice"
+        prop="client"
         header-align="center"
         align="center"
-        label="总价"
+        label="客户"
       >
       </el-table-column>
       <el-table-column
-        prop="comment"
+        prop="productionDepartment"
         header-align="center"
         align="center"
-        label="备注"
+        label="生产部门"
       >
       </el-table-column>
       <el-table-column
-        prop="department"
+        prop="attribute"
         header-align="center"
         align="center"
-        label="领料部门"
+        label="属性"
       >
       </el-table-column>
       <el-table-column
-        prop="departmentLeader"
+        prop="productSeries"
         header-align="center"
         align="center"
-        label="领料部门负责人"
+        label="产品系列"
       >
       </el-table-column>
       <el-table-column
-        prop="departmentMember"
+        prop="modelNo"
         header-align="center"
         align="center"
-        label="领料人"
+        label="模具编号"
       >
       </el-table-column>
       <el-table-column
-        prop="photo"
+        prop="color"
         header-align="center"
         align="center"
-        label="领料人照片"
+        label="颜色"
       >
-        <template slot-scope="scope">
-          <el-button
-            circle
-            type="info"
-            icon="el-icon-search"
-            @click="getPhoto(scope.row.photo)"
-          >
-          </el-button>
-        </template>
+      </el-table-column>
+      <el-table-column
+        prop="slotCount"
+        header-align="center"
+        align="center"
+        label="穴数"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="tonnage"
+        header-align="center"
+        align="center"
+        label="吨位"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="pieceWeightg"
+        header-align="center"
+        align="center"
+        label="单重g"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="capacityh"
+        header-align="center"
+        align="center"
+        label="产能H"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialNo"
+        header-align="center"
+        align="center"
+        label="材料料号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialItemName"
+        header-align="center"
+        align="center"
+        label="材料品名"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="materialModel"
+        header-align="center"
+        align="center"
+        label="材料规格"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="pigmentNo"
+        header-align="center"
+        align="center"
+        label="材料料号"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="pigmentItemName"
+        header-align="center"
+        align="center"
+        label="色料品名"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="pigmentModel"
+        header-align="center"
+        align="center"
+        label="色料规格"
+      >
       </el-table-column>
       <el-table-column
         fixed="right"
@@ -170,12 +201,6 @@
         label="操作"
       >
         <template slot-scope="scope">
-          <el-button
-            type="text"
-            size="small"
-            @click="getDetailHandle(scope.row.id)"
-            >详情</el-button
-          >
           <el-button
             type="text"
             size="small"
@@ -207,29 +232,18 @@
       ref="addOrUpdate"
       @refreshDataList="getDataList"
     ></add-or-update>
-    <!-- 详情 -->
-    <get-detail
-      v-if="getDetailVisible"
-      ref="getDetail"
-      @refreshDataList="getDataList"
-    ></get-detail>
-    <!-- 领料人图片 -->
-    <el-dialog :visible.sync="getPhotoVisible" width="30%">
-      <img width="100%" :src="photoUrl" />
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import AddOrUpdate from "./stockBill-add-or-update";
-import GetDetail from "./stockBill-get-detail";
 import FileSaver from "file-saver";
-import XLSX from "xlsx";
+import XLSX2 from "xlsx";
+import AddOrUpdate from "./tblmaterial-add-or-update";
 export default {
   data() {
     return {
       dataForm: {
-        key: null,
+        key: "",
       },
       dataList: [],
       pageIndex: 1,
@@ -238,54 +252,17 @@ export default {
       dataListLoading: false,
       dataListSelections: [],
       addOrUpdateVisible: false,
-      getDetailVisible: false,
-      getPhotoVisible: false,
-      photoUrl: "",
-      //时间快速选择
-      pickerDate: [],
-      pickerOptions: {
-        shortcuts: [
-          {
-            text: "最近一周",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近一个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-          {
-            text: "最近三个月",
-            onClick(picker) {
-              const end = new Date();
-              const start = new Date();
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
-              picker.$emit("pick", [start, end]);
-            },
-          },
-        ],
-      },
     };
   },
   components: {
     AddOrUpdate,
-    GetDetail,
   },
   activated() {
     this.getDataList();
   },
   methods: {
-    // 导出表格所用
-    exportExcel() {
+    // 导出excel表格
+    setExport2Excel() {
       // 设置当前日期
       let time = new Date();
       let year = time.getFullYear();
@@ -293,11 +270,9 @@ export default {
       let day = time.getDate();
       let name = year + "" + month + "" + day;
       // console.log(name)
-      /* generate workbook object from table */
       // .table要导出的是哪一个表格
-      var wb = XLSX.utils.table_to_book(document.querySelector(".table"));
-      /* get binary string as output */
-      var wbout = XLSX.write(wb, {
+      var wb = XLSX2.utils.table_to_book(document.querySelector(".table"));
+      var wbout = XLSX2.write(wb, {
         bookType: "xlsx",
         bookSST: true,
         type: "array",
@@ -313,48 +288,20 @@ export default {
       }
       return wbout;
     },
-
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true;
-      let key = this.dataForm.key;
-      if (key != null) {
-        key += "";
-      }
-      let pageIndex = this.pageIndex;
-      if (pageIndex != null) {
-        pageIndex += "";
-      }
-      let pageSize = this.pageSize;
-      if (pageSize != null) {
-        pageSize += "";
-      }
       this.$http({
-        url: this.$http.adornUrl("/it/stockBill/list"),
-        method: "post",
-        data: this.$http.adornData({
-          page: pageIndex,
-          limit: pageSize,
-          key: key,
-          pickerDate: this.pickerDate,
+        url: this.$http.adornUrl("/productionplan/tblmaterial/list"),
+        method: "get",
+        params: this.$http.adornParams({
+          page: this.pageIndex,
+          limit: this.pageSize,
+          key: this.dataForm.key,
         }),
       }).then(({ data }) => {
         if (data && data.code === 0) {
-          let allList = data.page.list;
-          allList.forEach((element, index) => {
-            //如果材料name有多个值，则取出第一个值，再在后面加上...
-            let names = this.doSplit(element.name);
-            element.name = names;
-            let models = this.doSplit(element.model);
-            element.model = models;
-
-            //将数量和单价通过","拆分后计算总数和总价
-            let total = this.doPlus(element.amount);
-            element.amount = total;
-            let total2 = this.doPlus(element.totalPrice);
-            element.totalPrice = total2;
-          });
-          this.dataList = allList;
+          this.dataList = data.page.list;
           this.totalPage = data.page.totalCount;
         } else {
           this.dataList = [];
@@ -363,39 +310,6 @@ export default {
         this.dataListLoading = false;
       });
     },
-
-    //分割然后替代原参数方法
-    doSplit(str) {
-      let strs = str.split(",");
-      if (strs.length > 1) {
-        str = strs[0];
-        return (str += "....");
-      }
-      return str;
-    },
-
-    //将数组的所有字符串转为数字，然后再相加
-    doPlus(list) {
-      if (list && list.length > 0) {
-        let total = 0;
-        let list2 = list.split(",");
-        list2.forEach((item) => {
-          let num = parseInt(item);
-          total += num;
-        });
-        return total;
-      }
-      return "";
-    },
-
-    //获取当前照片
-    getPhoto(photo) {
-      if (photo == null) {
-        this.$message.error("领料人暂无照片");
-      } else this.getPhotoVisible = true;
-      this.photoUrl = photo;
-    },
-
     // 每页数
     sizeChangeHandle(val) {
       this.pageSize = val;
@@ -410,13 +324,6 @@ export default {
     // 多选
     selectionChangeHandle(val) {
       this.dataListSelections = val;
-    },
-    //
-    getDetailHandle(id) {
-      this.getDetailVisible = true;
-      this.$nextTick(() => {
-        this.$refs.getDetail.init(id);
-      });
     },
     // 新增 / 修改
     addOrUpdateHandle(id) {
@@ -442,7 +349,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/it/stockBill/delete"),
+          url: this.$http.adornUrl("/productionplan/tblmaterial/delete"),
           method: "post",
           data: this.$http.adornData(ids, false),
         }).then(({ data }) => {
