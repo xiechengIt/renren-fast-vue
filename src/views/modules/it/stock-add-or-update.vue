@@ -33,6 +33,7 @@
         <el-input
           v-model="dataForm.stockCount"
           placeholder="库存数量"
+          disabled
         ></el-input>
       </el-form-item>
       <el-form-item label="计量单位" prop="stockUnit">

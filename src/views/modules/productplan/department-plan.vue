@@ -35,7 +35,7 @@
           </el-form-item>
           <el-form-item>
             <el-button @click="getDataList()">查询</el-button>
-            <el-button type="primary">批量新增</el-button>
+            <!-- <el-button type="primary">批量新增</el-button> -->
             <el-button type="primary" @click="addOrUpdateHandle()"
               >新增</el-button
             >
@@ -45,7 +45,10 @@
               :disabled="dataListSelections.length <= 0"
               >批量删除</el-button
             >
-            <el-button type="primary" :disabled="dataListSelections.length <= 0"
+            <el-button
+              @click="finishHandle()"
+              type="primary"
+              :disabled="dataListSelections.length <= 0"
               >手工结案</el-button
             >
             <el-button type="primary" :disabled="dataListSelections.length <= 0"
@@ -636,7 +639,7 @@ export default {
           deptid.push(element.deptid);
         });
       }
-      //console.log(deptid);
+      console.log(deptid);
       //将数据放入全局参数tempDeptids
       this.tempDeptids = deptid;
       this.dataListLoading = true;
@@ -771,6 +774,44 @@ export default {
         });
       });
     },
+    //结案处理
+    finishHandle(id) {
+      var ids = id
+        ? [id]
+        : this.dataListSelections.map((item) => {
+            return item.id;
+          });
+
+      this.$confirm(
+        `确定对[id=${ids.join(",")}]进行[${id ? "结案" : "批量结案"}]操作?`,
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      ).then(() => {
+        this.$http({
+          url: this.$http.adornUrl("/productionplan/qutblmplan/finish"),
+          method: "post",
+          data: this.$http.adornData(ids, false),
+        }).then(({ data }) => {
+          if (data && data.code === 0) {
+            this.$message({
+              message: "操作成功",
+              type: "success",
+              duration: 1500,
+              onClose: () => {
+                this.getTempList();
+              },
+            });
+          } else {
+            this.$message.error(data.msg);
+          }
+        });
+      });
+    },
+
     //批量删除
     batchDelete() {
       let deptids = [];

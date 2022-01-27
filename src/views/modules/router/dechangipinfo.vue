@@ -16,8 +16,11 @@
       <el-form-item>
         <el-button @click="getDataList()">查询</el-button>
         <el-button type="primary" @click="addOrUpdateHandle()">新增</el-button>
-        <el-button @click="setExport2Excel" type="primary" class="button"
-          >导出</el-button
+        <el-button
+          type="primary"
+          @click="dialogVisible = true"
+          :disabled="dataListSelections.length <= 0"
+          >批量限速</el-button
         >
         <el-button
           type="danger"
@@ -25,8 +28,8 @@
           :disabled="dataListSelections.length <= 0"
           >批量删除</el-button
         >
-        <!-- v-if="isAuth('productionplan:tblmaterial:save')"
-        v-if="isAuth('productionplan:tblmaterial:delete')" -->
+        <!-- v-if="isAuth('router:dechangipinfo:save')"
+        v-if="isAuth('router:dechangipinfo:delete')" -->
       </el-form-item>
     </el-form>
     <el-table
@@ -38,7 +41,6 @@
       stripe
       size="mini"
       height="650"
-      class="table"
     >
       <el-table-column
         type="selection"
@@ -52,146 +54,97 @@
         header-align="center"
         align="center"
         label="id"
+        min-width="40rem"
       >
       </el-table-column>
       <el-table-column
-        prop="code"
+        prop="office"
         header-align="center"
         align="center"
-        label="代码"
+        label="办公室"
+        min-width="100rem"
       >
       </el-table-column>
       <el-table-column
-        prop="itemName"
+        prop="department"
         header-align="center"
         align="center"
-        label="品名"
+        label="部门"
       >
       </el-table-column>
       <el-table-column
-        prop="defaultWarehouse"
+        prop="name"
         header-align="center"
         align="center"
-        label="默认仓库"
+        label="姓名"
       >
       </el-table-column>
       <el-table-column
-        prop="unit"
+        prop="username"
         header-align="center"
         align="center"
-        label="单位"
+        label="账号"
       >
       </el-table-column>
       <el-table-column
-        prop="client"
+        prop="ip"
         header-align="center"
         align="center"
-        label="客户"
+        label="ip地址"
+        min-width="100rem"
       >
       </el-table-column>
       <el-table-column
-        prop="productionDepartment"
+        prop="mac"
         header-align="center"
         align="center"
-        label="生产部门"
+        label="mac地址"
+        min-width="100rem"
       >
       </el-table-column>
       <el-table-column
-        prop="attribute"
+        prop="laptopUsername"
         header-align="center"
         align="center"
-        label="属性"
+        label="笔记本账号"
       >
       </el-table-column>
       <el-table-column
-        prop="productSeries"
+        prop="laptopIp"
         header-align="center"
         align="center"
-        label="产品系列"
+        label="笔记本ip地址"
+        min-width="100rem"
       >
       </el-table-column>
       <el-table-column
-        prop="modelNo"
+        prop="laptopMac"
         header-align="center"
         align="center"
-        label="模具编号"
+        label="笔记本mac地址"
+        min-width="100rem"
       >
       </el-table-column>
       <el-table-column
-        prop="color"
+        prop="comment"
         header-align="center"
         align="center"
-        label="颜色"
+        label="备注"
       >
       </el-table-column>
       <el-table-column
-        prop="slotCount"
+        prop="updateTime"
         header-align="center"
         align="center"
-        label="穴数"
+        label="更新时间"
+        min-width="110rem"
       >
       </el-table-column>
       <el-table-column
-        prop="tonnage"
+        prop="speedLimit"
         header-align="center"
         align="center"
-        label="吨位"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="pieceWeightg"
-        header-align="center"
-        align="center"
-        label="单重g"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="capacityh"
-        header-align="center"
-        align="center"
-        label="产能H"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="materialNo"
-        header-align="center"
-        align="center"
-        label="材料料号"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="materialItemName"
-        header-align="center"
-        align="center"
-        label="材料品名"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="materialModel"
-        header-align="center"
-        align="center"
-        label="材料规格"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="pigmentNo"
-        header-align="center"
-        align="center"
-        label="材料料号"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="pigmentItemName"
-        header-align="center"
-        align="center"
-        label="色料品名"
-      >
-      </el-table-column>
-      <el-table-column
-        prop="pigmentModel"
-        header-align="center"
-        align="center"
-        label="色料规格"
+        label="限速值(kbps)"
       >
       </el-table-column>
       <el-table-column
@@ -233,13 +186,28 @@
       ref="addOrUpdate"
       @refreshDataList="getDataList"
     ></add-or-update>
+
+    <!-- 限速弹窗 -->
+    <el-dialog title="限速" :visible.sync="dialogVisible" width="30%">
+      <el-select v-model="limit" placeholder="请选择限速值">
+        <el-option
+          v-for="item in limits"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        >
+        </el-option>
+      </el-select>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="speedLimit()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import FileSaver from "file-saver";
-import XLSX2 from "xlsx";
-import AddOrUpdate from "./tblmaterial-add-or-update";
+import AddOrUpdate from "./dechangipinfo-add-or-update";
 export default {
   data() {
     return {
@@ -253,6 +221,22 @@ export default {
       dataListLoading: false,
       dataListSelections: [],
       addOrUpdateVisible: false,
+      dialogVisible: false,
+      limit: 1000,
+      limits: [
+        {
+          value: 500,
+          label: "500",
+        },
+        {
+          value: 1000,
+          label: "1000",
+        },
+        {
+          value: 2000,
+          label: "2000",
+        },
+      ],
     };
   },
   components: {
@@ -262,38 +246,14 @@ export default {
     this.getDataList();
   },
   methods: {
-    // 导出excel表格
-    setExport2Excel() {
-      // 设置当前日期
-      let time = new Date();
-      let year = time.getFullYear();
-      let month = time.getMonth() + 1;
-      let day = time.getDate();
-      let name = year + "" + month + "" + day;
-      // console.log(name)
-      // .table要导出的是哪一个表格
-      var wb = XLSX2.utils.table_to_book(document.querySelector(".table"));
-      var wbout = XLSX2.write(wb, {
-        bookType: "xlsx",
-        bookSST: true,
-        type: "array",
-      });
-      try {
-        // name+'.xlsx'表示导出的excel表格名字
-        FileSaver.saveAs(
-          new Blob([wbout], { type: "application/octet-stream" }),
-          name + ".xlsx"
-        );
-      } catch (e) {
-        if (typeof console !== "undefined") console.log(e, wbout);
-      }
-      return wbout;
-    },
+    // 限速设置
+    speedLimit() {},
+
     // 获取数据列表
     getDataList() {
       this.dataListLoading = true;
       this.$http({
-        url: this.$http.adornUrl("/productionplan/tblmaterial/list"),
+        url: this.$http.adornUrl("/router/dechangipinfo/list"),
         method: "get",
         params: this.$http.adornParams({
           page: this.pageIndex,
@@ -333,6 +293,35 @@ export default {
         this.$refs.addOrUpdate.init(id);
       });
     },
+    //限速
+    speedLimit(id) {
+      var vals = this.dataListSelections.map((item) => {
+        return { id: item.id, ip: item.ip, speedLimit: this.limit };
+      });
+      console.log(vals);
+      this.$confirm(`确定进行限速操作?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      }).then(() => {
+        this.$http({
+          url: this.$http.adornUrl("/router/dechangipinfo/speedLimit"),
+          method: "post",
+          data: this.$http.adornData(vals, false),
+        }).then(({ data }) => {
+          this.$message({
+            message: data.massage,
+            type: "success",
+            duration: 1500,
+            onClose: () => {
+              this.dialogVisible = false;
+              this.getDataList();
+            },
+          });
+        });
+      });
+    },
+
     // 删除
     deleteHandle(id) {
       var ids = id
@@ -350,7 +339,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/productionplan/tblmaterial/delete"),
+          url: this.$http.adornUrl("/router/dechangipinfo/delete"),
           method: "post",
           data: this.$http.adornData(ids, false),
         }).then(({ data }) => {

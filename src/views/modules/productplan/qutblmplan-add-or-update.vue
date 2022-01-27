@@ -3,6 +3,7 @@
     :title="!dataForm.id ? '新增' : '修改'"
     :close-on-click-modal="false"
     :visible.sync="visible"
+    top="10px"
   >
     <el-form
       :model="dataForm"
@@ -267,7 +268,7 @@ export default {
       //代码列表
       codes: [],
       dataRule: {
-        machineId: [
+       /*  machineId: [
           { required: true, message: "机号不能为空", trigger: "blur" },
         ],
         machineName: [
@@ -363,7 +364,7 @@ export default {
         status: [{ required: true, message: "状态不能为空", trigger: "blur" }],
         modelNo: [
           { required: true, message: "模具编号不能为空", trigger: "blur" },
-        ],
+        ], */
         // 理论材料总量kg: [
         //   { required: true, message: '实际完成数量不能为空', trigger: 'blur' }
         // ],

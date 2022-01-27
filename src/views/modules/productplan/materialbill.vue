@@ -4,6 +4,7 @@
       :inline="true"
       :model="dataForm"
       @keyup.enter.native="getDataList()"
+      @submit.native.prevent
     >
       <el-form-item>
         <el-input

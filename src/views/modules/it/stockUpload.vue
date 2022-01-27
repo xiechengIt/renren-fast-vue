@@ -1,84 +1,105 @@
 <template>
   <div>
-    <el-form
-      :model="form"
-      :rules="rules"
-      ref="form"
-      label-width="55px"
-      class="demo-ruleForm"
-    >
-      <el-form-item label="类型">
-        <el-select
-          v-model="typeCid"
-          filterable
-          placeholder="类型"
-          @change="typeChange"
+    <el-row>
+      <el-col :span="12">
+        <el-form
+          :model="form"
+          :rules="rules"
+          ref="form"
+          label-width="55px"
+          class="demo-ruleForm"
         >
-          <el-option
-            v-for="item in types"
-            :key="item.catId"
-            :label="item.name"
-            :value="item.catId"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="名称">
-        <el-select
-          v-model="nameCid"
-          ref="name"
-          filterable
-          placeholder="名称"
-          @change="nameChange"
-        >
-          <el-option
-            v-for="item in names"
-            :key="item.catId"
-            :label="item.name"
-            :value="item.catId"
-          >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="型号" prop="model"
-        ><!-- prop="model" -->
-        <el-select
-          v-model="form.model"
-          filterable
-          placeholder="型号"
-          @change="modelChange"
-        >
-          <el-option
-            v-for="item in models"
-            :key="item.catId"
-            :label="item.name"
-            :value="item.catId"
-          >
-            <span style="float: left">{{ item.name }}</span>
-            <span style="float: right; color: #8492a6; font-size: 13px"
-              >库存：{{ item.stockCount == null ? 0 : item.stockCount }}</span
+          <el-form-item label="类型">
+            <el-select
+              v-model="typeCid"
+              filterable
+              placeholder="类型"
+              @change="typeChange"
             >
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="数量">
-        <el-input-number v-model="form.amount" :min="1"></el-input-number>
-      </el-form-item>
+              <el-option
+                v-for="item in types"
+                :key="item.catId"
+                :label="item.name"
+                :value="item.catId"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="名称">
+            <el-select
+              v-model="nameCid"
+              ref="name"
+              filterable
+              placeholder="名称"
+              @change="nameChange"
+            >
+              <el-option
+                v-for="item in names"
+                :key="item.catId"
+                :label="item.name"
+                :value="item.catId"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="型号" prop="model"
+            ><!-- prop="model" -->
+            <el-select
+              v-model="form.model"
+              filterable
+              placeholder="型号"
+              @change="modelChange"
+            >
+              <el-option
+                v-for="item in models"
+                :key="item.catId"
+                :label="item.name"
+                :value="item.catId"
+              >
+                <span style="float: left">{{ item.name }}</span>
+                <span style="float: right; color: #8492a6; font-size: 13px"
+                  >库存：{{
+                    item.stockCount == null ? 0 : item.stockCount
+                  }}</span
+                >
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="数量">
+            <el-input-number v-model="form.amount" :min="1"></el-input-number>
+          </el-form-item>
 
-      <el-form-item label="备注">
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 2, maxRows: 4 }"
-          v-model="form.comment"
-          placeholder="备注"
-          style="width: 15%"
-        ></el-input>
-      </el-form-item>
+          <el-form-item label="备注">
+            <el-input
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              v-model="form.comment"
+              placeholder="备注"
+              style="width: 25%"
+            ></el-input>
+          </el-form-item>
 
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">提交</el-button>
-      </el-form-item>
-    </el-form>
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit">提交</el-button>
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="12">
+        <el-form>
+          <el-form-item label="label">
+            <el-checkbox-group v-model="model">
+              <el-checkbox label="label" name="name"></el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+
+          <el-form-item label="label">
+            <el-checkbox-group v-model="model">
+              <el-checkbox label="label" name="name"></el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
   </div>
 </template>
 

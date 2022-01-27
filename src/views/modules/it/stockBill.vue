@@ -4,6 +4,7 @@
       :inline="true"
       :model="dataForm"
       @keyup.enter.native="getDataList()"
+      @submit.native.prevent
     >
       <el-form-item>
         <el-date-picker
@@ -72,7 +73,7 @@
         header-align="center"
         align="center"
         label="领料日期"
-        min-width="100px"
+        min-width="130px"
       >
       </el-table-column>
       <el-table-column
