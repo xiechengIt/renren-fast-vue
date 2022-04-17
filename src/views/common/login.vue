@@ -95,12 +95,12 @@ export default {
             data: this.$http.adornData({
               username: this.dataForm.userName,
               password: this.dataForm.password,
-              uuid: this.dataForm.uuid,
               captcha: this.dataForm.captcha,
             }),
           }).then(({ data }) => {
             if (data && data.code === 0) {
               this.$cookie.set("token", data.token);
+
               this.$router.replace({ name: "home" });
             } else {
               //this.getCaptcha();
@@ -138,7 +138,7 @@ export default {
     width: 100%;
     height: 100%;
     content: "";
-    background-image: url(~@/assets/img/login_bg.jpg);
+    background-image: url(~@/assets/img/login_bg2.jpg);
     background-size: cover;
   }
   .site-content__wrapper {
