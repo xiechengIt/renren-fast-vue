@@ -62,15 +62,15 @@
                 :before-upload="beforeUpload"
             /></el-form-item>
 
-            <!-- <el-button type="primary" @click="addOrUpdateHandle()"
-              >新增</el-button
-            >
-
             <el-button
               type="danger"
               @click="deleteHandle()"
               :disabled="dataListSelections.length <= 0"
               >批量删除</el-button
+            >
+            <!-- <el-button type="primary" @click="addOrUpdateHandle()"
+              >新增</el-button
+            >
             > -->
           </el-form-item>
         </el-form>
@@ -83,6 +83,13 @@
           size="mini"
           stripe
         >
+          <el-table-column
+            type="selection"
+            header-align="center"
+            align="center"
+            width="50"
+          >
+          </el-table-column>
           <el-table-column
             prop="planId"
             header-align="center"
@@ -390,9 +397,18 @@
             label="操作"
           >
             <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row)">{{
-                !scope.row.isEdit ? "完成" : "编辑"
-              }}</el-button>
+              <el-button
+                type="text"
+                size="small"
+                @click="handleClick(scope.row)"
+                >{{ !scope.row.isEdit ? "完成" : "编辑" }}</el-button
+              >
+              <el-button
+                type="text"
+                size="small"
+                @click="deleteHandle(scope.row.planId)"
+                >删除</el-button
+              >
             </template>
             <!-- <template slot-scope="scope">
               <el-button
@@ -711,10 +727,12 @@ export default {
       var ids = id
         ? [id]
         : this.dataListSelections.map((item) => {
-            return item.id;
+            return item.planId;
           });
       this.$confirm(
-        `确定对[id=${ids.join(",")}]进行[${id ? "删除" : "批量删除"}]操作?`,
+        `确定对 计划id ${ids.join(",")}  进行  ${
+          id ? "删除" : "批量删除"
+        } 操作?`,
         "提示",
         {
           confirmButtonText: "确定",

@@ -30,6 +30,8 @@
       v-loading="dataListLoading"
       @selection-change="selectionChangeHandle"
       style="width: 100%"
+      size="mini"
+      stripe
     >
       <el-table-column
         type="selection"
@@ -116,7 +118,7 @@
 </template>
 
 <script>
-import AddOrUpdate from "./rotorbaditemoption-add-or-update";
+import AddOrUpdate from "./statorbaditemoption-add-or-update";
 export default {
   data() {
     return {
@@ -143,7 +145,7 @@ export default {
     getDataList() {
       this.dataListLoading = true;
       this.$http({
-        url: this.$http.adornUrl("/rotor/rotorbaditemoption/list"),
+        url: this.$http.adornUrl("/stator/statorbaditemoption/list"),
         method: "get",
         params: this.$http.adornParams({
           page: this.pageIndex,
@@ -200,7 +202,7 @@ export default {
         }
       ).then(() => {
         this.$http({
-          url: this.$http.adornUrl("/rotor/rotorbaditemoption/delete"),
+          url: this.$http.adornUrl("/stator/statorbaditemoption/delete"),
           method: "post",
           data: this.$http.adornData(ids, false),
         }).then(({ data }) => {
